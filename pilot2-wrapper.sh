@@ -3,10 +3,10 @@
 # wrapper for pilot2
 # author: mario.lassnig@cern.ch
 
-VERSION=20161019.007
+VERSION=20161027.001
 
 function log_es() {
-    curl -vv --connect-timeout 5 --max-time 10 --netrc -XPOST https://es-atlas.cern.ch:9203/atlas_pilot-factory-$(date --utc +"%Y-%m-%d")/event/ -d \
+    curl -ks --connect-timeout 5 --max-time 10 --netrc -XPOST https://es-atlas.cern.ch:9203/atlas_pilotfactory-$(date --utc +"%Y-%m-%d")/event/ -d \
 	 '{"timestamp": "'$(date --utc +%Y-%m-%dT%H:%M:%S.%3N)'",
            "apffid": "'$APFFID'",
            "apfcid": "'$APFCID'",
@@ -48,14 +48,14 @@ function trap_handler() {
 }
 
 function main() {
-    #apfmon_start
+    apfmon_start
     log_stdout "pilot2 wrapper version=$VERSION apffid=$APFFID apfcid=$APFCID"
     log_stdout "support: atlas-adc-pilot@cern.ch"
     log_stdout "author: mario.lassnig@cern.ch"
 
     log_stdout "--- main ---"
     log_es "main"
-    exit
+
     log_stdout "--- environment ---"
     log_es "environment"
     log_stdout "hostname: $(hostname -f)"
