@@ -57,10 +57,13 @@ function main() {
 
     log_stdout "--- parsing arguments ---"
 
-    while getopts ":s:q:" opt; do
+    while getopts ":s:q:r:" opt; do
         case $opt in
             s)
                 configured_site=$OPTARG
+                ;;
+	    r)
+                configured_resource=$OPTARG
                 ;;
             q)
                 configured_queue=$OPTARG
@@ -71,12 +74,14 @@ function main() {
         esac
     done
 
-    if [ -z $configured_site ] || [ -z $configured_queue ]; then
-        log_stdouterr "both site (-s) and queue (-q) must be specified"
-        log_stdouterr "aborting"
+    if [ -z $configured_site ] || [ -z $configured_resource ] || [ -z $configured_queue ]; then
+        log_stderr "site (-s), resource (-r), and queue (-q) must be specified"
+	log_stderr "e.g.: -s BNL-ATLAS -r BNL_ATLAS_2 -q BNL_ATLAS_2-condor"
+        log_stderr "aborting"
         exit 1
     fi
     log_stdout "Site: $configured_site"
+    log_stdout "Resource: $configured_resource"
     log_stdout "Queue: $configured_queue"
 
     log_stdout "--- main ---"
@@ -99,8 +104,8 @@ function main() {
     out=$( { voms-proxy-info --all; } 2>&1)
     if [ $? -ne 0 ]; then
         out=$(echo ${out} | tr -d '\n')
-        log_stdouterr "failed: voms-proxy-info --all: $out"
-        log_stdouterr "aborting"
+        log_stderr "failed: voms-proxy-info --all: $out"
+        log_stderr "aborting"
         exit 1
     fi
     log_stdout "voms-proxy-info: \n$out"
@@ -111,8 +116,8 @@ function main() {
     work_dir_template=$(pwd)/condorg_XXXXXXXX
     work_dir=$( { mktemp -d $work_dir_template; } 2>&1)
     if [ $? -ne 0 ]; then
-        log_stdouterr "failed: $work_dir"
-        log_stdouterr "aborting"
+        log_stderr "failed: $work_dir"
+        log_stderr "aborting"
         exit 1
     else
         cd $work_dir
@@ -123,7 +128,7 @@ function main() {
     log_es "setup ALRB"
     export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
     source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh --quiet
-    source $VO_ATLAS_SW_DIR/local/setup.sh -s INFN-T1_TEST
+    source $VO_ATLAS_SW_DIR/local/setup.sh -s $configured_resource
 
     log_stdout "--- setup DDM ---"
     log_es "setup DDM"
