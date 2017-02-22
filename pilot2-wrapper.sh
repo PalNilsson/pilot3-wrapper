@@ -146,7 +146,7 @@ function main() {
 
     log_stdout "--- running pilot ---"
     log_es "running pilot"
-    python pilot.py -d -s $configured_site -q $configured_queue -l 60
+    python pilot.py -d -s $configured_site -q $configured_queue -l 600
 
     log_stdout "--- cleanup ---"
     log_es "cleanup"
