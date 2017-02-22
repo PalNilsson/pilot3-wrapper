@@ -3,7 +3,7 @@
 # wrapper for pilot2
 # author: mario.lassnig@cern.ch
 
-VERSION=20170220.001
+VERSION=20170222.001
 
 function log_es() {
     # curl -ks --connect-timeout 5 --max-time 10 --netrc -XPOST https://es-atlas.cern.ch:9203/atlas_pilotfactory-$(date --utc +"%Y-%m-%d")/event/ -d \
@@ -132,7 +132,7 @@ function main() {
 
     log_stdout "--- setup DDM ---"
     log_es "setup DDM"
-    source $ATLAS_LOCAL_ROOT_BASE/utilities/oldAliasSetup.sh "rucio testing-SL6"
+    source $ATLAS_LOCAL_ROOT_BASE/utilities/oldAliasSetup.sh "rucio 1.10.0"
     log_stdout "rucio whoami: \n$(rucio whoami)"
 
     log_stdout "--- retrieving pilot ---"
