@@ -3,18 +3,17 @@
 # wrapper for pilot2
 # author: mario.lassnig@cern.ch
 
-VERSION=20170222.001
+VERSION=20170306.001
 
 function log_es() {
-    # curl -ks --connect-timeout 5 --max-time 10 --netrc -XPOST https://es-atlas.cern.ch:9203/atlas_pilotfactory-$(date --utc +"%Y-%m-%d")/event/ -d \
-    # 	 '{"timestamp": "'$(date --utc +%Y-%m-%dT%H:%M:%S.%3N)'",
-    #        "apffid": "'$APFFID'",
-    #        "apfcid": "'$APFCID'",
-    #        "host": "'$(hostname -f)'",
-    #        "pid": "'$$'",
-    #        "version": "'$VERSION'",
-    #        "msg": "'"$@"'"}' 1>/dev/null;
-    sleep 0.01
+    curl -ks --connect-timeout 5 --max-time 10 --netrc -XPOST https://es-atlas.cern.ch:9203/atlas_pilotfactory-$(date --utc +"%Y-%m-%d")/event/ -d \
+	 '{"timestamp": "'$(date --utc +%Y-%m-%dT%H:%M:%S.%3N)'",
+           "apffid": "'$APFFID'",
+           "apfcid": "'$APFCID'",
+           "host": "'$(hostname -f)'",
+           "pid": "'$$'",
+           "version": "'$VERSION'",
+           "msg": "'"$@"'"}' 1>/dev/null;
 }
 
 function log_stdout() {
@@ -39,7 +38,7 @@ function apfmon_start() {
 }
 
 function apfmon_end() {
-    curl -ks --connect-timeout 10 --max-time 20 -d state=exiting -d rc=0 ${APFMON}/jobs/${APFFID}:${APFCID} 1>/dev/null
+    curl -ks --connect-timeout 10 --max-time 20 -d state=exiting -d rc=$1 ${APFMON}/jobs/${APFFID}:${APFCID} 1>/dev/null
 }
 
 function trap_handler() {
@@ -137,7 +136,7 @@ function main() {
 
     log_stdout "--- retrieving pilot ---"
     log_es "retrieving pilot"
-    wget -q https://github.com/mlassnig/pilot2/archive/ongoing-work.tar.gz -O pilot.tar.gz
+    wget -q https://github.com/mlassnig/pilot2/archive/main-dev.tar.gz -O pilot.tar.gz
     tar xfz pilot.tar.gz --strip-components=1
 
     log_stdout "--- installing signal handler ---"
@@ -146,7 +145,11 @@ function main() {
 
     log_stdout "--- running pilot ---"
     log_es "running pilot"
-    python pilot.py -d -s $configured_site -q $configured_queue -l 600
+
+    python pilot.py -d -w generic -s $configured_site -r $configured_resource -q $configured_queue -l 1200
+    ec=$?
+    log_stdout "exitcode: $ec"
+    apfmon_end $ec
 
     log_stdout "--- cleanup ---"
     log_es "cleanup"
@@ -156,7 +159,6 @@ function main() {
 
     log_stdout "--- done ---"
     log_es "done"
-    apfmon_end
 }
 
 main "$@"
