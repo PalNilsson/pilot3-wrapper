@@ -131,7 +131,10 @@ function main() {
 
     log_stdout "--- setup DDM ---"
     log_es "setup DDM"
-    source $ATLAS_LOCAL_ROOT_BASE/utilities/oldAliasSetup.sh "rucio 1.10.0"
+    export VO_LOCAL_SITE=$configured_site
+    export VO_LOCAL_RESOURCE=$configured_resource
+    export VO_LOCAL_QUEUE=$configured_queue
+    source $ATLAS_LOCAL_ROOT_BASE/utilities/oldAliasSetup.sh "rucio testing-SL6"
     log_stdout "rucio whoami: \n$(rucio whoami)"
 
     log_stdout "--- retrieving pilot ---"
