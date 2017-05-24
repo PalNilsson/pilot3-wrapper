@@ -73,14 +73,21 @@ function main() {
         esac
     done
 
-    if [ -z $configured_site ] || [ -z $configured_resource ] || [ -z $configured_queue ]; then
-        log_stderr "site (-s), resource (-r), and queue (-q) must be specified"
-	log_stderr "e.g.: -s BNL-ATLAS -r BNL_ATLAS_2 -q BNL_ATLAS_2-condor"
+#    if [ -z $configured_site ] || [ -z $configured_resource ] || [ -z $configured_queue ]; then
+#        log_stderr "site (-s), resource (-r), and queue (-q) must be specified"
+#	log_stderr "e.g.: -s BNL-ATLAS -r BNL_ATLAS_2 -q BNL_ATLAS_2-condor"
+#        log_stderr "aborting"
+#        exit 1
+#    fi
+#    log_stdout "Site: $configured_site"
+#    log_stdout "Resource: $configured_resource"
+
+    if [ -z $configured_queue ]; then
+        log_stderr "queue (-q) must be specified"
+	log_stderr "e.g.: -q BNL_ATLAS_2-condor"
         log_stderr "aborting"
         exit 1
     fi
-    log_stdout "Site: $configured_site"
-    log_stdout "Resource: $configured_resource"
     log_stdout "Queue: $configured_queue"
 
     log_stdout "--- main ---"
