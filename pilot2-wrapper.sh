@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 # wrapper for pilot2
-# author: mario.lassnig@cern.ch
+# author: mario.lassnig@cern.ch, paul.nilsson@cern.ch
 
-VERSION=20170306.001
+VERSION=20170524.001
 
 function log_es() {
     curl -ks --connect-timeout 5 --max-time 10 --netrc -XPOST https://es-atlas.cern.ch:9203/atlas_pilotfactory-$(date --utc +"%Y-%m-%d")/event/ -d \
@@ -139,7 +139,7 @@ function main() {
 
     log_stdout "--- retrieving pilot ---"
     log_es "retrieving pilot"
-    wget -q https://github.com/mlassnig/pilot2/archive/main-dev.tar.gz -O pilot.tar.gz
+    wget -q https://github.com/PalNilsson/pilot2/archive/next.tar.gz -O pilot.tar.gz
     tar xfz pilot.tar.gz --strip-components=1
 
     log_stdout "--- installing signal handler ---"
