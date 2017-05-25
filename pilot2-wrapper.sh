@@ -49,6 +49,20 @@ function trap_handler() {
     wait
 }
 
+function setup_osg() {
+    # If OSG setup script exists, run it
+    if [ ! -z ${OSG_GRID+x}
+        log_stdout "setting up OSG environment"
+        if test -f $OSG_GRID/setup.sh ; then
+            log_stdout "Running OSG setup from $OSG_GRID/setup.sh"
+
+            source $OSG_GRID/setup.sh
+        else
+            log_stderr "OSG_GRID defined but setup file $OSG_GRID/setup.sh does not exist"
+        fi
+    fi
+}
+
 function main() {
 
     if [ ! -z ${APFMON+x} ] && [ ! -z ${APFFID+x} ] && [ ! -z ${APFCID+x} ]; then
@@ -90,6 +104,9 @@ function main() {
     log_stdout "Site: $configured_site"
     log_stdout "Resource: $configured_resource"
     log_stdout "Queue: $configured_queue"
+
+    # Run the OSG setup if necessary
+    setup_osg
 
     log_stdout "--- main ---"
     log_es "main"
