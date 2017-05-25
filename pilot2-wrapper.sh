@@ -6,7 +6,7 @@
 VERSION=20170525.001
 
 function log_es() {
-    if [ -z ${APFMON} ] && [ -z ${APFFID} ] && [ -z ${APFCID} ]; then
+    if [ ! -z ${APFMON+x} ] && [ ! -z ${APFFID+x} ] && [ ! -z ${APFCID+x} ]; then
         curl -ks --connect-timeout 5 --max-time 10 --netrc -XPOST https://es-atlas.cern.ch:9203/atlas_pilotfactory-$(date --utc +"%Y-%m-%d")/event/ -d \
 	     '{"timestamp": "'$(date --utc +%Y-%m-%dT%H:%M:%S.%3N)'",
            "apffid": "'$APFFID'",
@@ -51,7 +51,7 @@ function trap_handler() {
 
 function main() {
 
-    if [ -z ${APFMON} ] && [ -z ${APFFID} ] && [ -z ${APFCID} ]; then
+    if [ ! -z ${APFMON+x} ] && [ ! -z ${APFFID+x} ] && [ ! -z ${APFCID+x} ]; then
         apfmon_start
         log_stdout "pilot2 wrapper version=$VERSION apffid=$APFFID apfcid=$APFCID"
     else
@@ -162,7 +162,7 @@ function main() {
     ec=$?
     log_stdout "exitcode: $ec"
 
-    if [ -z ${APFMON} ] && [ -z ${APFFID} ] && [ -z ${APFCID} ]; then
+    if [ ! -z ${APFMON+x} ] && [ ! -z ${APFFID+x} ] && [ ! -z ${APFCID+x} ]; then
         apfmon_end $ec
     fi
 
