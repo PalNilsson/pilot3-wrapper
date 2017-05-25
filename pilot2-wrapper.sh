@@ -3,17 +3,19 @@
 # wrapper for pilot2
 # author: mario.lassnig@cern.ch, paul.nilsson@cern.ch
 
-VERSION=20170524.001
+VERSION=20170525.001
 
 function log_es() {
-    curl -ks --connect-timeout 5 --max-time 10 --netrc -XPOST https://es-atlas.cern.ch:9203/atlas_pilotfactory-$(date --utc +"%Y-%m-%d")/event/ -d \
-	 '{"timestamp": "'$(date --utc +%Y-%m-%dT%H:%M:%S.%3N)'",
+    if [ -z ${APFMON} ] && [ -z ${APFFID} ] && [ -z ${APFCID} ]; then
+        curl -ks --connect-timeout 5 --max-time 10 --netrc -XPOST https://es-atlas.cern.ch:9203/atlas_pilotfactory-$(date --utc +"%Y-%m-%d")/event/ -d \
+	     '{"timestamp": "'$(date --utc +%Y-%m-%dT%H:%M:%S.%3N)'",
            "apffid": "'$APFFID'",
            "apfcid": "'$APFCID'",
            "host": "'$(hostname -f)'",
            "pid": "'$$'",
            "version": "'$VERSION'",
            "msg": "'"$@"'"}' 1>/dev/null;
+    fi
 }
 
 function log_stdout() {
@@ -48,11 +50,16 @@ function trap_handler() {
 }
 
 function main() {
-    apfmon_start
-    log_stdout "pilot2 wrapper version=$VERSION apffid=$APFFID apfcid=$APFCID"
+
+    if [ -z ${APFMON} ] && [ -z ${APFFID} ] && [ -z ${APFCID} ]; then
+        apfmon_start
+        log_stdout "pilot2 wrapper version=$VERSION apffid=$APFFID apfcid=$APFCID"
+    else
+        log_stdout "pilot2 wrapper version=$VERSION"
+    fi
 
     log_stdout "support: atlas-adc-pilot@cern.ch"
-    log_stdout "author: mario.lassnig@cern.ch"
+    log_stdout "author: mario.lassnig@cern.ch, paul.nilsson@cern.ch"
 
     log_stdout "--- parsing arguments ---"
 
@@ -61,7 +68,7 @@ function main() {
             s)
                 configured_site=$OPTARG
                 ;;
-	    r)
+            r)
                 configured_resource=$OPTARG
                 ;;
             q)
@@ -73,21 +80,15 @@ function main() {
         esac
     done
 
-#    if [ -z $configured_site ] || [ -z $configured_resource ] || [ -z $configured_queue ]; then
-#        log_stderr "site (-s), resource (-r), and queue (-q) must be specified"
-#	log_stderr "e.g.: -s BNL-ATLAS -r BNL_ATLAS_2 -q BNL_ATLAS_2-condor"
-#        log_stderr "aborting"
-#        exit 1
-#    fi
-#    log_stdout "Site: $configured_site"
-#    log_stdout "Resource: $configured_resource"
-
-    if [ -z $configured_queue ]; then
-        log_stderr "queue (-q) must be specified"
-	log_stderr "e.g.: -q BNL_ATLAS_2-condor"
+    if [ -z $configured_site ] || [ -z $configured_resource ] || [ -z $configured_queue ]; then
+        log_stderr "site (-s), resource (-r), and queue (-q) must be specified"
+        log_stderr "e.g.: -s BNL-ATLAS -r BNL_ATLAS_2 -q BNL_ATLAS_2-condor"
+        log_stderr "      -s UTA_SWT2 -r UTA_PAUL_TEST -q UTA_PAUL_TEST"
         log_stderr "aborting"
         exit 1
     fi
+    log_stdout "Site: $configured_site"
+    log_stdout "Resource: $configured_resource"
     log_stdout "Queue: $configured_queue"
 
     log_stdout "--- main ---"
@@ -156,10 +157,14 @@ function main() {
     log_stdout "--- running pilot ---"
     log_es "running pilot"
 
-    python pilot.py -d -w generic -s $configured_site -r $configured_resource -q $configured_queue -l 1200
+    #python pilot.py -d -w generic -s $configured_site -r $configured_resource -q $configured_queue -l 1200
+    python pilot.py -d -w generic -q $configured_queue -l 1200
     ec=$?
     log_stdout "exitcode: $ec"
-    apfmon_end $ec
+
+    if [ -z ${APFMON} ] && [ -z ${APFFID} ] && [ -z ${APFCID} ]; then
+        apfmon_end $ec
+    fi
 
     log_stdout "--- cleanup ---"
     log_es "cleanup"
