@@ -90,6 +90,7 @@ function main() {
                 ;;
             j)
                 job_label=$OPTARG
+                ;;
             \?)
                 log_stdout "Unused option: $OPTARG" >&2
                 ;;
