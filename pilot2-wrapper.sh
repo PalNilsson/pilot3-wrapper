@@ -51,7 +51,7 @@ function trap_handler() {
 
 function setup_osg() {
     # If OSG setup script exists, run it
-    if [ ! -z ${OSG_GRID+x}
+    if [ ! -z ${OSG_GRID+x} ]; then
         log_stdout "setting up OSG environment"
         if test -f $OSG_GRID/setup.sh ; then
             log_stdout "Running OSG setup from $OSG_GRID/setup.sh"
