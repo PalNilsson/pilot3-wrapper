@@ -3,7 +3,7 @@
 # wrapper for pilot2
 # author: mario.lassnig@cern.ch, paul.nilsson@cern.ch
 
-VERSION=20170525.002
+VERSION=20170531.001
 
 function log_es() {
     if [ ! -z ${APFMON+x} ] && [ ! -z ${APFFID+x} ] && [ ! -z ${APFCID+x} ]; then
@@ -77,19 +77,25 @@ function main() {
 
     log_stdout "--- parsing arguments ---"
 
-    while getopts ":s:q:r:j:" opt; do
+    while getopts ":j:l:q:r:s:v:" opt; do
         case $opt in
+            j)
+                job_label=$OPTARG
+                ;;
+            l)
+                lifetime=$OPTARG
+                ;;
+            q)
+                configured_queue=$OPTARG
+                ;;
             s)
                 configured_site=$OPTARG
                 ;;
             r)
                 configured_resource=$OPTARG
                 ;;
-            q)
-                configured_queue=$OPTARG
-                ;;
-            j)
-                job_label=$OPTARG
+            v)
+                url=$OPTARG
                 ;;
             \?)
                 log_stdout "Unused option: $OPTARG" >&2
@@ -107,10 +113,21 @@ function main() {
     log_stdout "Site: $configured_site"
     log_stdout "Resource: $configured_resource"
     log_stdout "Queue: $configured_queue"
+
+    if [ -z $lifetime ]; then
+        lifetime=1200
+    fi
+    log_stdout "Pilot lifetime: $lifetime"
+
     if [ -z $job_label ]; then
         job_label=ptest
     fi
     log_stdout "Job label: $job_label"
+
+    if [ -z $url ]; then
+        url="https://pandaserver.cern.ch"
+    fi
+    log_stdout "Server URL: $url"
 
     # Run the OSG setup if necessary
     setup_osg
@@ -182,7 +199,7 @@ function main() {
     log_es "running pilot"
 
     #python pilot.py -d -w generic -s $configured_site -r $configured_resource -q $configured_queue -l 1200
-    python pilot.py -d -w generic -q $configured_queue -j $job_label -l 1200
+    python pilot.py -d -w generic -q $configured_queue -j $job_label -l $lifetime --url=$url
     ec=$?
     log_stdout "exitcode: $ec"
 
