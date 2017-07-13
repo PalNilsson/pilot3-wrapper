@@ -77,8 +77,11 @@ function main() {
 
     log_stdout "--- parsing arguments ---"
 
-    while getopts ":j:l:q:r:s:v:" opt; do
+    while getopts ":d:j:l:q:r:s:v:" opt; do
         case $opt in
+            d)
+                workdir=$OPTARG
+                ;;
             j)
                 job_label=$OPTARG
                 ;;
