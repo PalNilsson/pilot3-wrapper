@@ -77,7 +77,7 @@ function main() {
 
     log_stdout "--- parsing arguments ---"
 
-    while getopts ":a:j:l:q:r:s:v:" opt; do
+    while getopts ":a:j:l:q:r:s:v:w:" opt; do
         case $opt in
             a)
                 workdir=$OPTARG
@@ -99,6 +99,9 @@ function main() {
                 ;;
             v)
                 url=$OPTARG
+                ;;
+            2)
+                workflow=$OPTARG
                 ;;
             \?)
                 log_stdout "Unused option: $OPTARG" >&2
@@ -202,7 +205,7 @@ function main() {
     log_es "running pilot"
 
     #python pilot.py -d -w generic -s $configured_site -r $configured_resource -q $configured_queue -l 1200
-    python pilot.py -d -a $workdir -w generic -q $configured_queue -j $job_label -l $lifetime --url=$url
+    python pilot.py -d -a $workdir -j $job_label -l $lifetime -q $configured_queue -w $workflow --url=$url
     ec=$?
     log_stdout "exitcode: $ec"
 
