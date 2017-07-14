@@ -100,7 +100,7 @@ function main() {
             v)
                 url=$OPTARG
                 ;;
-            2)
+            w)
                 workflow=$OPTARG
                 ;;
             \?)
