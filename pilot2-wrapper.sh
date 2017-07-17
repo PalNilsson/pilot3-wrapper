@@ -67,7 +67,7 @@ function setup_osg() {
 
 function show_help() {
 
-    log_stdout "PanDA Pilot 2 Wrapper"
+    log_stdout "(add help)"
 
 }
 function main() {
@@ -87,20 +87,20 @@ function main() {
     while getopts ":a:j:l:q:r:s:v:w:hd" opt; do
         case ${opt} in
             a)
-                workdir=$OPTARG
+                workdir=-a $OPTARG
                 ;;
             d)
-                debug="-d"
+                debug=-d
                 ;;
             j)
-                job_label=$OPTARG
+                job_label=-j $OPTARG
                 ;;
             h)
                 show_help
                 exit 1
                 ;;
             l)
-                lifetime=$OPTARG
+                lifetime=-l $OPTARG
                 ;;
             q)
                 configured_queue=$OPTARG
@@ -112,10 +112,10 @@ function main() {
                 configured_resource=$OPTARG
                 ;;
             v)
-                url=$OPTARG
+                url=-v $OPTARG
                 ;;
             w)
-                workflow=$OPTARG
+                workflow=-w $OPTARG
                 ;;
             \?)
                 log_stdout "Unused option: $OPTARG" >&2
@@ -132,12 +132,12 @@ function main() {
     #fi
 
     if [ -z $lifetime ]; then
-        lifetime=1200
+        lifetime=-l 1200
     fi
     log_stdout "Pilot lifetime in seconds: $lifetime"
 
     if [ -z $job_label ]; then
-        job_label=ptest
+        job_label=-j ptest
     fi
     log_stdout "Job label: $job_label"
 
@@ -220,7 +220,7 @@ function main() {
     log_es "running pilot"
 
     #python pilot.py -d -w generic -s $configured_site -r $configured_resource -q $configured_queue -l 1200
-    python pilot.py $debug -a $workdir -j $job_label -l $lifetime -q $configured_queue -w $workflow --url=$url
+    python pilot.py $debug $workdir $job_label $lifetime $workflow -q $configured_queue --url=$url
     ec=$?
     log_stdout "exitcode: $ec"
 
