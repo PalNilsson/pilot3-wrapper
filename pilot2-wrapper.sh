@@ -76,11 +76,14 @@ function main() {
     log_stdout "author: mario.lassnig@cern.ch, paul.nilsson@cern.ch"
 
     log_stdout "--- parsing arguments ---"
-
-    while getopts ":a:j:l:q:r:s:v:w:" opt; do
+    debug=""
+    while getopts ":a:d:j:l:q:r:s:v:w:" opt; do
         case $opt in
             a)
                 workdir=$OPTARG
+                ;;
+            d)
+                debug="-d"
                 ;;
             j)
                 job_label=$OPTARG
@@ -202,7 +205,7 @@ function main() {
     log_es "running pilot"
 
     #python pilot.py -d -w generic -s $configured_site -r $configured_resource -q $configured_queue -l 1200
-    python pilot.py -d -a $workdir -j $job_label -l $lifetime -q $configured_queue -w $workflow --url=$url
+    python pilot.py $debug -a $workdir -j $job_label -l $lifetime -q $configured_queue -w $workflow --url=$url
     ec=$?
     log_stdout "exitcode: $ec"
 
