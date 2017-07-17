@@ -80,11 +80,10 @@ function main() {
     log_stdout "support: atlas-adc-pilot@cern.ch"
     log_stdout "author: mario.lassnig@cern.ch, paul.nilsson@cern.ch"
 
-    log_stdout "--- parsing arguments ---"
     debug=""
-    help=false
-    while getopts ":a:d:h:j:l:q:r:s:v:w:" opt; do
-        case $opt in
+    # put options that do not require a value at the end (like h and d), ie do not put a : after
+    while getopts ":a:j:l:q:r:s:v:w:hd" opt; do
+        case ${opt} in
             a)
                 workdir=$OPTARG
                 ;;
@@ -95,7 +94,8 @@ function main() {
                 job_label=$OPTARG
                 ;;
             h)
-                help=true
+                show_help
+                exit 1
                 ;;
             l)
                 lifetime=$OPTARG
@@ -129,15 +129,10 @@ function main() {
     #    exit 1
     #fi
 
-    if [ "$help" = true ] then
-        show_help
-        exit 1
-    fi
-
     if [ -z $lifetime ]; then
         lifetime=1200
     fi
-    log_stdout "Pilot lifetime: $lifetime"
+    log_stdout "Pilot lifetime in seconds: $lifetime"
 
     if [ -z $job_label ]; then
         job_label=ptest
