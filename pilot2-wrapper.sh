@@ -3,6 +3,8 @@
 # wrapper for pilot2
 # author: mario.lassnig@cern.ch, paul.nilsson@cern.ch
 
+# ./pilot2-wrapper.sh -w generic -a /scratch -j ptest -q UTA_PAUL_TEST -r UTA_PAUL_TEST -v https://aipanda007.cern.ch -l 2000
+
 VERSION=20170531.001
 
 function log_es() {
@@ -192,6 +194,10 @@ function main() {
     export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
     source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh --quiet
     source $VO_ATLAS_SW_DIR/local/setup.sh -s $configured_resource
+
+    log_stdout "--- setup python ---"
+    source $ATLAS_LOCAL_ROOT_BASE/packageSetups/localSetup.sh
+    lsetup "python 2.7.9-x86_64-slc6-gcc48"
 
     log_stdout "--- setup DDM ---"
     log_es "setup DDM"
