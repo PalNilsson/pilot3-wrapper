@@ -2,10 +2,9 @@
 #
 # wrapper for pilot2
 # author: mario.lassnig@cern.ch, paul.nilsson@cern.ch
-
 # ./pilot2-wrapper.sh -w generic -a /scratch -j ptest -q UTA_PAUL_TEST -r UTA_PAUL_TEST -v https://aipanda007.cern.ch -l 2000
 
-VERSION=20170531.001
+VERSION=20170717.001
 
 function log_es() {
     if [ ! -z ${APFMON+x} ] && [ ! -z ${APFFID+x} ] && [ ! -z ${APFCID+x} ]; then
@@ -83,24 +82,26 @@ function main() {
     log_stdout "author: mario.lassnig@cern.ch, paul.nilsson@cern.ch"
 
     debug=""
+    workdir=""
+
     # put options that do not require a value at the end (like h and d), ie do not put a : after
     while getopts ":a:j:l:q:r:s:v:w:hd" opt; do
         case ${opt} in
             a)
-                workdir=-a $OPTARG
+                workdir=$OPTARG
                 ;;
             d)
                 debug=-d
                 ;;
             j)
-                job_label=-j $OPTARG
+                job_label=$OPTARG
                 ;;
             h)
                 show_help
                 exit 1
                 ;;
             l)
-                lifetime=-l $OPTARG
+                lifetime=$OPTARG
                 ;;
             q)
                 configured_queue=$OPTARG
@@ -112,10 +113,10 @@ function main() {
                 configured_resource=$OPTARG
                 ;;
             v)
-                url=-v $OPTARG
+                url=$OPTARG
                 ;;
             w)
-                workflow=-w $OPTARG
+                workflow=$OPTARG
                 ;;
             \?)
                 log_stdout "Unused option: $OPTARG" >&2
@@ -131,20 +132,27 @@ function main() {
     #    exit 1
     #fi
 
-    if [ -z $lifetime ]; then
-        lifetime=-l 1200
+#    if [ $workdir ]; then
+#        workdir=-a $workdir
+#    fi
+
+    if [ -z $workflow ]; then
+        workflow=generic
     fi
-    log_stdout "Pilot lifetime in seconds: $lifetime"
+
+    if [ -z $lifetime ]; then
+        lifetime=1200
+    else
+        lifetime=$lifetime
+    fi
 
     if [ -z $job_label ]; then
-        job_label=-j ptest
+        job_label=ptest
     fi
-    log_stdout "Job label: $job_label"
 
     if [ -z $url ]; then
         url="https://pandaserver.cern.ch"
     fi
-    log_stdout "Server URL: $url"
 
     # Run the OSG setup if necessary
     setup_osg
@@ -196,7 +204,6 @@ function main() {
     source $VO_ATLAS_SW_DIR/local/setup.sh -s $configured_resource
 
     log_stdout "--- setup python ---"
-    source $ATLAS_LOCAL_ROOT_BASE/packageSetups/localSetup.sh
     lsetup "python 2.7.9-x86_64-slc6-gcc48"
 
     log_stdout "--- setup DDM ---"
@@ -220,7 +227,7 @@ function main() {
     log_es "running pilot"
 
     #python pilot.py -d -w generic -s $configured_site -r $configured_resource -q $configured_queue -l 1200
-    python pilot.py $debug $workdir $job_label $lifetime $workflow -q $configured_queue --url=$url
+    python pilot.py $debug -a $workdir -j $job_label -l $lifetime -w $workflow -q $configured_queue --url=$url
     ec=$?
     log_stdout "exitcode: $ec"
 
