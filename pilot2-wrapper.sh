@@ -63,6 +63,11 @@ function setup_osg() {
     fi
 }
 
+function show_help() {
+
+    log_stdout "PanDA Pilot 2 Wrapper"
+
+}
 function main() {
 
     if [ ! -z ${APFMON+x} ] && [ ! -z ${APFFID+x} ] && [ ! -z ${APFCID+x} ]; then
@@ -77,7 +82,8 @@ function main() {
 
     log_stdout "--- parsing arguments ---"
     debug=""
-    while getopts ":a:d:j:l:q:r:s:v:w:" opt; do
+    help=false
+    while getopts ":a:d:h:j:l:q:r:s:v:w:" opt; do
         case $opt in
             a)
                 workdir=$OPTARG
@@ -87,6 +93,9 @@ function main() {
                 ;;
             j)
                 job_label=$OPTARG
+                ;;
+            h)
+                help=true
                 ;;
             l)
                 lifetime=$OPTARG
@@ -119,6 +128,11 @@ function main() {
     #   log_stderr "aborting"
     #    exit 1
     #fi
+
+    if [ "$help" = true ] then
+        show_help
+        exit 1
+    fi
 
     if [ -z $lifetime ]; then
         lifetime=1200
