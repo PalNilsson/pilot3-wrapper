@@ -4,7 +4,7 @@
 # author: mario.lassnig@cern.ch, paul.nilsson@cern.ch
 # ./pilot2-wrapper.sh -w generic -a /scratch -j ptest -q UTA_PAUL_TEST -r UTA_PAUL_TEST -v https://aipanda007.cern.ch -l 2000
 
-VERSION=20170717.001
+VERSION=20170914.001
 
 function log_es() {
     if [ ! -z ${APFMON+x} ] && [ ! -z ${APFFID+x} ] && [ ! -z ${APFCID+x} ]; then
@@ -85,7 +85,7 @@ function main() {
     workdir=""
 
     # put options that do not require a value at the end (like h and d), ie do not put a : after
-    while getopts ":a:j:l:q:r:s:v:w:hd" opt; do
+    while getopts ":a:d:j:h:l:q:r:s:v:w:" opt; do
         case ${opt} in
             a)
                 workdir=$OPTARG
@@ -104,13 +104,14 @@ function main() {
                 lifetime=$OPTARG
                 ;;
             q)
-                configured_queue=$OPTARG
-                ;;
-            s)
-                configured_site=$OPTARG
+                queue=$OPTARG
                 ;;
             r)
-                configured_resource=$OPTARG
+                # resource is needed by the wrapper but not the pilot
+                resource=$OPTARG
+                ;;
+            s)
+                site=$OPTARG
                 ;;
             v)
                 url=$OPTARG
@@ -124,17 +125,13 @@ function main() {
         esac
     done
 
-    #if [ -z $configured_site ] || [ -z $configured_resource ] || [ -z $configured_queue ]; then
-    #    log_stderr "site (-s), resource (-r), and queue (-q) must be specified"
-    #    log_stderr "e.g.: -s BNL-ATLAS -r BNL_ATLAS_2 -q BNL_ATLAS_2-condor"
-    #    log_stderr "      -s UTA_SWT2 -r UTA_PAUL_TEST -q UTA_PAUL_TEST"
-    #   log_stderr "aborting"
-    #    exit 1
-    #fi
-
-#    if [ $workdir ]; then
-#        workdir=-a $workdir
-#    fi
+    if [ -z $site ] || [ -z $resource ] || [ -z $queue ]; then
+        log_stderr "site (-s), resource (-r), and queue (-q) must be specified"
+        log_stderr "e.g.: -s BNL-ATLAS -r BNL_ATLAS_2 -q BNL_ATLAS_2-condor"
+        log_stderr "      -s UTA_SWT2 -r UTA_PAUL_TEST -q UTA_PAUL_TEST"
+       log_stderr "aborting"
+        exit 1
+    fi
 
     if [ -z $workflow ]; then
         workflow=generic
@@ -201,16 +198,16 @@ function main() {
     log_es "setup ALRB"
     export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
     source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh --quiet
-    source $VO_ATLAS_SW_DIR/local/setup.sh -s $configured_resource
+    source $VO_ATLAS_SW_DIR/local/setup.sh -s $resource
 
     log_stdout "--- setup python ---"
     lsetup "python 2.7.9-x86_64-slc6-gcc48"
 
     log_stdout "--- setup DDM ---"
     log_es "setup DDM"
-    export VO_LOCAL_SITE=$configured_site
-    export VO_LOCAL_RESOURCE=$configured_resource
-    export VO_LOCAL_QUEUE=$configured_queue
+    export VO_LOCAL_SITE=$site
+    export VO_LOCAL_RESOURCE=$resource
+    export VO_LOCAL_QUEUE=$queue
     source $ATLAS_LOCAL_ROOT_BASE/utilities/oldAliasSetup.sh "rucio testing-SL6"
     log_stdout "rucio whoami: \n$(rucio whoami)"
 
@@ -226,8 +223,9 @@ function main() {
     log_stdout "--- running pilot ---"
     log_es "running pilot"
 
-    #python pilot.py -d -w generic -s $configured_site -r $configured_resource -q $configured_queue -l 1200
-    python pilot.py $debug -a $workdir -j $job_label -l $lifetime -w $workflow -q $configured_queue --url=$url
+    #python pilot.py -d -w generic -s $site -q $queue -l 1200
+    python pilot.py $debug -a $workdir -j $job_label -l $lifetime -w $workflow -q $queue -s $site
+        --url=$url
     ec=$?
     log_stdout "exitcode: $ec"
 
