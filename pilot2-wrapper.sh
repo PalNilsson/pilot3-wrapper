@@ -85,7 +85,7 @@ function main() {
     workdir=""
 
     # put options that do not require a value at the end (like h and d), ie do not put a : after
-    while getopts ":a:d:j:h:l:q:r:s:v:w:" opt; do
+    while getopts ":a:d:j:h:l:q:r:s:v:w:z:" opt; do
         case ${opt} in
             a)
                 workdir=$OPTARG
@@ -119,6 +119,9 @@ function main() {
             w)
                 workflow=$OPTARG
                 ;;
+	    z)
+		pilot_user=$OPTARG
+		;;
             \?)
                 log_stdout "Unused option: $OPTARG" >&2
                 ;;
