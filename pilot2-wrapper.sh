@@ -119,9 +119,9 @@ function main() {
             w)
                 workflow=$OPTARG
                 ;;
-	        z)
-		        pilot_user=$OPTARG
-		        ;;
+            z)
+                pilot_user=$OPTARG
+                ;;
             \?)
                 log_stdout "Unused option: $OPTARG" >&2
                 ;;
