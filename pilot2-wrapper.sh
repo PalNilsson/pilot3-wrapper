@@ -142,8 +142,6 @@ function main() {
 
     if [ -z $lifetime ]; then
         lifetime=1200
-    else
-        lifetime=$lifetime
     fi
 
     if [ -z $job_label ]; then
@@ -155,7 +153,7 @@ function main() {
     fi
 
     if [ -z $pilot_user ]; then
-        pilotuser=$pilot_user
+        pilot_user="ATLAS"
     fi
 
     # Run the OSG setup if necessary
@@ -231,8 +229,8 @@ function main() {
     log_es "running pilot"
 
     #python pilot.py -d -w generic -s $site -q $queue -l 1200
-    python pilot.py $debug -a $workdir -j $job_label -l $lifetime -w $workflow -q $queue -s $site
-        --pilot_user=$pilotuser
+    python pilot.py $debug -a $workdir -j $job_label -l $lifetime -w $workflow -q $queue -s $site \
+        --pilot_user=$pilot_user \
         --url=$url
     ec=$?
     log_stdout "exitcode: $ec"
