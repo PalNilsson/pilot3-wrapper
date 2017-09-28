@@ -154,6 +154,10 @@ function main() {
         url="https://pandaserver.cern.ch"
     fi
 
+    if [ -z $pilot_user ]; then
+        pilotuser=$pilot_user
+    fi
+
     # Run the OSG setup if necessary
     setup_osg
 
@@ -228,6 +232,7 @@ function main() {
 
     #python pilot.py -d -w generic -s $site -q $queue -l 1200
     python pilot.py $debug -a $workdir -j $job_label -l $lifetime -w $workflow -q $queue -s $site
+        --pilot_user=$pilotuser
         --url=$url
     ec=$?
     log_stdout "exitcode: $ec"
