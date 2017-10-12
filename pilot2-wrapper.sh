@@ -229,7 +229,7 @@ function main() {
     log_es "running pilot"
 
     #python pilot.py -d -w generic -s $site -q $queue -l 1200
-    python pilot.py $debug -a $workdir -j $job_label -l $lifetime -w $workflow -q $queue -s $site \
+    python pilot.py $debug -a $workdir -j $job_label -l $lifetime -w $workflow -q $queue -r $resource -s $site \
         --pilot-user=$pilot_user \
         --url=$url
     ec=$?
