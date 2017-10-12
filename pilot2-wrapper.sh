@@ -230,7 +230,7 @@ function main() {
 
     #python pilot.py -d -w generic -s $site -q $queue -l 1200
     python pilot.py $debug -a $workdir -j $job_label -l $lifetime -w $workflow -q $queue -s $site \
-        --pilot_user=$pilot_user \
+        --pilot-user=$pilot_user \
         --url=$url
     ec=$?
     log_stdout "exitcode: $ec"
