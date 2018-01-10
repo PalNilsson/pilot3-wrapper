@@ -140,8 +140,8 @@ function main() {
         workflow=generic
     fi
 
-    if [ -z $lifetime ]; then
-        lifetime=1200
+    if [ $lifetime ]; then
+        lifetime_arg=-l $lifetime
     fi
 
     if [ -z $job_label ]; then
@@ -229,9 +229,10 @@ function main() {
     log_es "running pilot"
 
     #python pilot.py -d -w generic -s $site -q $queue -l 1200
-    python pilot.py $debug -a $workdir -j $job_label -l $lifetime -w $workflow -q $queue -r $resource -s $site \
+    python pilot.py $debug -a $workdir -j $job_label -w $workflow -q $queue -r $resource -s $site \
         --pilot-user=$pilot_user \
-        --url=$url
+        --url=$url \
+        $lifetime_arg
     ec=$?
     log_stdout "exitcode: $ec"
 
