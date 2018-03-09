@@ -85,7 +85,7 @@ function main() {
     workdir=""
 
     # put options that do not require a value at the end (like h and d), ie do not put a : after
-    while getopts ":a:d:j:h:l:q:r:s:v:w:z:" opt; do
+    while getopts ":a:d:j:h:l:q:r:s:v:w:x:z:" opt; do
         case ${opt} in
             a)
                 workdir=$OPTARG
@@ -119,6 +119,9 @@ function main() {
             w)
                 workflow=$OPTARG
                 ;;
+            x)
+                hpc_resource=$OPTARG
+                ;;
             z)
                 pilot_user=$OPTARG
                 ;;
@@ -150,6 +153,10 @@ function main() {
 
     if [ -z $url ]; then
         url="https://pandaserver.cern.ch"
+    fi
+
+    if [ $hpc_resource ]; then
+	hpc_arg=--hpc-resource $hpc_resource
     fi
 
     if [ -z $pilot_user ]; then
@@ -232,7 +239,7 @@ function main() {
     python pilot.py $debug -a $workdir -j $job_label -w $workflow -q $queue -r $resource -s $site \
         --pilot-user=$pilot_user \
         --url=$url \
-        $lifetime_arg
+        $lifetime_arg $hpc_arg
     ec=$?
     log_stdout "exitcode: $ec"
 
