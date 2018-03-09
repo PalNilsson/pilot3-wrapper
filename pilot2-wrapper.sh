@@ -83,9 +83,10 @@ function main() {
 
     debug=""
     workdir=""
+    hpc_arg=""
 
     # put options that do not require a value at the end (like h and d), ie do not put a : after
-    while getopts ":a:d:j:h:l:q:r:s:v:w:x:z:" opt; do
+    while getopts ":a:dj:hl:q:r:s:v:w:x:z:" opt; do
         case ${opt} in
             a)
                 workdir=$OPTARG
@@ -235,11 +236,8 @@ function main() {
     log_stdout "--- running pilot ---"
     log_es "running pilot"
 
-    #python pilot.py -d -w generic -s $site -q $queue -l 1200
-    python pilot.py $debug -a $workdir -j $job_label -w $workflow -q $queue -r $resource -s $site \
-        --pilot-user=$pilot_user \
-        --url=$url \
-        $lifetime_arg $hpc_arg
+    echo pilot.py $debug -a $workdir -j $job_label -w $workflow -q $queue -r $resource -s $site --pilot-user=$pilot_user --url=$url $lifetime_arg $hpc_arg
+    python pilot.py $debug -a $workdir -j $job_label -w $workflow -q $queue -r $resource -s $site --pilot-user=$pilot_user --url=$url $lifetime_arg $hpc_arg
     ec=$?
     log_stdout "exitcode: $ec"
 
