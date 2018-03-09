@@ -83,7 +83,6 @@ function main() {
 
     debug=""
     workdir=""
-    hpc_arg=""
 
     # put options that do not require a value at the end (like h and d), ie do not put a : after
     while getopts ":a:dj:hl:q:r:s:v:w:x:z:" opt; do
@@ -144,8 +143,8 @@ function main() {
         workflow=generic
     fi
 
-    if [ $lifetime ]; then
-        lifetime_arg=-l $lifetime
+    if [ ! -z ${lifetime+x} ]; then
+        lifetime_arg="-l $lifetime"
     fi
 
     if [ -z $job_label ]; then
@@ -156,8 +155,8 @@ function main() {
         url="https://pandaserver.cern.ch"
     fi
 
-    if [ $hpc_resource ]; then
-	hpc_arg=--hpc-resource $hpc_resource
+    if [ ! -z ${hpc_resource+x} ]; then
+        hpc_arg="--hpc-resource $hpc_resource"
     fi
 
     if [ -z $pilot_user ]; then
