@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-# wrapper for pilot2
-# author: mario.lassnig@cern.ch, paul.nilsson@cern.ch
-# ./pilot2-wrapper.sh -w generic -a /scratch -j ptest -q UTA_PAUL_TEST -r UTA_PAUL_TEST -v https://aipanda007.cern.ch -l 2000
+# wrapper for pilot3
+# author: paul.nilsson@cern.ch
+# ./pilot3-wrapper.sh -w generic -a /scratch -j ptest -q UTA_PAUL_TEST -v https://aipanda007.cern.ch -l 2000
 
-VERSION=20170914.001
+VERSION=20210122.001
 
 function log_es() {
     if [ ! -z ${APFMON+x} ] && [ ! -z ${APFFID+x} ] && [ ! -z ${APFCID+x} ]; then
@@ -73,19 +73,19 @@ function main() {
 
     if [ ! -z ${APFMON+x} ] && [ ! -z ${APFFID+x} ] && [ ! -z ${APFCID+x} ]; then
         apfmon_start
-        log_stdout "pilot2 wrapper version=$VERSION apffid=$APFFID apfcid=$APFCID"
+        log_stdout "pilot3 wrapper version=$VERSION apffid=$APFFID apfcid=$APFCID"
     else
-        log_stdout "pilot2 wrapper version=$VERSION"
+        log_stdout "pilot3 wrapper version=$VERSION"
     fi
 
     log_stdout "support: atlas-adc-pilot@cern.ch"
-    log_stdout "author: mario.lassnig@cern.ch, paul.nilsson@cern.ch"
+    log_stdout "author: paul.nilsson@cern.ch"
 
     debug=""
     workdir=""
 
     # put options that do not require a value at the end (like h and d), ie do not put a : after
-    while getopts ":a:dj:hl:q:r:s:v:w:x:z:" opt; do
+    while getopts ":a:dj:hl:q:v:w:x:z:" opt; do
         case ${opt} in
             a)
                 workdir=$OPTARG
@@ -106,13 +106,6 @@ function main() {
             q)
                 queue=$OPTARG
                 ;;
-            r)
-                # resource is needed by the wrapper but not the pilot
-                resource=$OPTARG
-                ;;
-            s)
-                site=$OPTARG
-                ;;
             v)
                 url=$OPTARG
                 ;;
@@ -131,10 +124,9 @@ function main() {
         esac
     done
 
-    if [ -z $site ] || [ -z $resource ] || [ -z $queue ]; then
-        log_stderr "site (-s), resource (-r), and queue (-q) must be specified"
-        log_stderr "e.g.: -s BNL-ATLAS -r BNL_ATLAS_2 -q BNL_ATLAS_2-condor"
-        log_stderr "      -s UTA_SWT2 -r UTA_PAUL_TEST -q UTA_PAUL_TEST"
+    if [ -z $queue ]; then
+        log_stderr "queue (-q) must be specified"
+        log_stderr "e.g.: -q BNL_ATLAS_2-condor"
        log_stderr "aborting"
         exit 1
     fi
@@ -210,15 +202,13 @@ function main() {
     log_es "setup ALRB"
     export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
     source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh --quiet
-    source $VO_ATLAS_SW_DIR/local/setup.sh -s $resource
+    source $VO_ATLAS_SW_DIR/local/setup.sh -s $queue
 
     log_stdout "--- setup python ---"
     lsetup "python 2.7.9-x86_64-slc6-gcc48"
 
     log_stdout "--- setup DDM ---"
     log_es "setup DDM"
-    export VO_LOCAL_SITE=$site
-    export VO_LOCAL_RESOURCE=$resource
     export VO_LOCAL_QUEUE=$queue
     source $ATLAS_LOCAL_ROOT_BASE/utilities/oldAliasSetup.sh "rucio testing-SL6"
     log_stdout "rucio whoami: \n$(rucio whoami)"
@@ -235,8 +225,8 @@ function main() {
     log_stdout "--- running pilot ---"
     log_es "running pilot"
 
-    echo pilot.py $debug -a $workdir -j $job_label -w $workflow -q $queue -r $resource -s $site --pilot-user=$pilot_user --url=$url $lifetime_arg $hpc_arg
-    python pilot.py $debug -a $workdir -j $job_label -w $workflow -q $queue -r $resource -s $site --pilot-user=$pilot_user --url=$url $lifetime_arg $hpc_arg
+    echo pilot.py $debug -a $workdir -j $job_label -w $workflow -q $queue --pilot-user=$pilot_user --url=$url $lifetime_arg $hpc_arg
+    python pilot.py $debug -a $workdir -j $job_label -w $workflow -q $queue --pilot-user=$pilot_user --url=$url $lifetime_arg $hpc_arg
     ec=$?
     log_stdout "exitcode: $ec"
 
