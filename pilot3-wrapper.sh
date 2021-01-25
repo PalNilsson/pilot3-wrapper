@@ -4,7 +4,7 @@
 # author: paul.nilsson@cern.ch
 # ./pilot3-wrapper.sh -w generic -a /scratch -j ptest -q UTA_PAUL_TEST -v https://aipanda007.cern.ch -l 2000
 
-VERSION=20210122.001
+VERSION=20210125.001
 
 function log_es() {
     if [ ! -z ${APFMON+x} ] && [ ! -z ${APFFID+x} ] && [ ! -z ${APFCID+x} ]; then
@@ -85,7 +85,7 @@ function main() {
     workdir=""
 
     # put options that do not require a value at the end (like h and d), ie do not put a : after
-    while getopts ":a:dj:hl:q:v:w:x:z:" opt; do
+    while getopts ":a:d:j:h:l:q:v:w:x:z:" opt; do
         case ${opt} in
             a)
                 workdir=$OPTARG
@@ -159,10 +159,10 @@ function main() {
     setup_osg
 
     log_stdout "--- main ---"
-    log_es "main"
+    #log_es "main"
 
     log_stdout "--- environment ---"
-    log_es "environment"
+    #log_es "environment"
     log_stdout "hostname: $(hostname -f)"
     log_stdout "pwd: $(pwd)"
     log_stdout "whoami: $(whoami)"
@@ -174,7 +174,7 @@ function main() {
     log_stdout "env: \n$(printenv | sort)"
 
     log_stdout "--- proxy ---"
-    log_es "proxy"
+    #log_es "proxy"
     out=$( { voms-proxy-info --all; } 2>&1)
     if [ $? -ne 0 ]; then
         out=$(echo ${out} | tr -d '\n')
@@ -185,7 +185,7 @@ function main() {
     log_stdout "voms-proxy-info: \n$out"
 
     log_stdout "--- setup working directory ---"
-    log_es "setup working directory"
+    #log_es "setup working directory"
     init_dir=$(pwd)
     work_dir_template=$(pwd)/condorg_XXXXXXXX
     work_dir=$( { mktemp -d $work_dir_template; } 2>&1)
@@ -198,35 +198,35 @@ function main() {
         log_stdout "pwd: $(pwd)"
     fi
 
-    log_stdout "--- setup ALRB ---"
-    log_es "setup ALRB"
-    export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-    source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh --quiet
-    source $VO_ATLAS_SW_DIR/local/setup.sh -s $queue
+    #log_stdout "--- setup ALRB ---"
+    #log_es "setup ALRB"
+    #export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+    #source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh --quiet
+    #source $VO_ATLAS_SW_DIR/local/setup.sh -s $queue
 
-    log_stdout "--- setup python ---"
-    lsetup "python 2.7.9-x86_64-slc6-gcc48"
+    #log_stdout "--- setup python ---"
+    #lsetup "python 2.7.9-x86_64-slc6-gcc48"
 
-    log_stdout "--- setup DDM ---"
-    log_es "setup DDM"
-    export VO_LOCAL_QUEUE=$queue
-    source $ATLAS_LOCAL_ROOT_BASE/utilities/oldAliasSetup.sh "rucio testing-SL6"
-    log_stdout "rucio whoami: \n$(rucio whoami)"
+    #log_stdout "--- setup DDM ---"
+    #log_es "setup DDM"
+    #export VO_LOCAL_QUEUE=$queue
+    #source $ATLAS_LOCAL_ROOT_BASE/utilities/oldAliasSetup.sh "rucio testing-SL6"
+    #log_stdout "rucio whoami: \n$(rucio whoami)"
 
     log_stdout "--- retrieving pilot ---"
-    log_es "retrieving pilot"
-    wget -q https://github.com/PalNilsson/pilot2/archive/next.tar.gz -O pilot.tar.gz
-    tar xfz pilot.tar.gz --strip-components=1
+    #log_es "retrieving pilot"
+    wget -q http://cern.ch/atlas-panda-pilot/pilot2-dev2.tar.gz
+    tar xfz pilot2-dev2.tar.gz --strip-components=1
 
     log_stdout "--- installing signal handler ---"
-    log_es "installing signal handler"
+    #log_es "installing signal handler"
     trap trap_handler SIGTERM SIGQUIT SIGSEGV SIGXCPU SIGUSR1 SIGBUS
 
     log_stdout "--- running pilot ---"
-    log_es "running pilot"
+    #log_es "running pilot"
 
     echo pilot.py $debug -a $workdir -j $job_label -w $workflow -q $queue --pilot-user=$pilot_user --url=$url $lifetime_arg $hpc_arg
-    python pilot.py $debug -a $workdir -j $job_label -w $workflow -q $queue --pilot-user=$pilot_user --url=$url $lifetime_arg $hpc_arg
+    python3 pilot.py $debug -a $workdir -j $job_label -w $workflow -q $queue --pilot-user=$pilot_user --url=$url $lifetime_arg $hpc_arg
     ec=$?
     log_stdout "exitcode: $ec"
 
@@ -235,13 +235,13 @@ function main() {
     fi
 
     log_stdout "--- cleanup ---"
-    log_es "cleanup"
+    #log_es "cleanup"
 
     cd $init_dir
     rm -rf $work_dir
 
     log_stdout "--- done ---"
-    log_es "done"
+    #log_es "done"
 }
 
 main "$@"
