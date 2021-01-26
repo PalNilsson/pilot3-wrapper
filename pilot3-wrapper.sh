@@ -85,7 +85,7 @@ function main() {
     workdir=""
 
     # put options that do not require a value at the end (like h and d), ie do not put a : after
-    while getopts ":a:d:j:h:l:q:t:v:w:x:z:" opt; do
+    while getopts ":a:j:h:l:q:t:v:w:x:z:dt" opt; do
         case ${opt} in
             a)
                 workdir=$OPTARG
