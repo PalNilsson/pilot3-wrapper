@@ -85,13 +85,13 @@ function main() {
     workdir=""
 
     # put options that do not require a value at the end (like h and d), ie do not put a : after
-    while getopts ":a:j:h:l:q:t:v:w:x:z:dt" opt; do
+    while getopts ":a:j:h:l:q:v:w:x:z:dt" opt; do
         case ${opt} in
             a)
                 workdir=$OPTARG
                 ;;
             d)
-                debug='-d'
+                debug=-d
                 ;;
             j)
                 job_label=$OPTARG
@@ -107,7 +107,7 @@ function main() {
                 queue=$OPTARG
                 ;;
             t)
-                proxy='-t'
+                proxy=-t
                 ;;
             v)
                 url=$OPTARG
