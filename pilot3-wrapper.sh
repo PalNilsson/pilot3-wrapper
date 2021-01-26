@@ -72,7 +72,7 @@ function show_help() {
 function main() {
 
     if [ ! -z ${APFMON+x} ] && [ ! -z ${APFFID+x} ] && [ ! -z ${APFCID+x} ]; then
-        apfmon_start
+        #apfmon_start
         log_stdout "pilot3 wrapper version=$VERSION apffid=$APFFID apfcid=$APFCID"
     else
         log_stdout "pilot3 wrapper version=$VERSION"
@@ -85,13 +85,13 @@ function main() {
     workdir=""
 
     # put options that do not require a value at the end (like h and d), ie do not put a : after
-    while getopts ":a:d:j:h:l:q:v:w:x:z:" opt; do
+    while getopts ":a:d:j:h:l:q:t:v:w:x:z:" opt; do
         case ${opt} in
             a)
                 workdir=$OPTARG
                 ;;
             d)
-                debug=-d
+                debug='-d'
                 ;;
             j)
                 job_label=$OPTARG
@@ -105,6 +105,9 @@ function main() {
                 ;;
             q)
                 queue=$OPTARG
+                ;;
+            t)
+                proxy='-t'
                 ;;
             v)
                 url=$OPTARG
@@ -225,14 +228,14 @@ function main() {
     log_stdout "--- running pilot ---"
     #log_es "running pilot"
 
-    echo pilot.py $debug -a $workdir -j $job_label -w $workflow -q $queue --pilot-user=$pilot_user --url=$url $lifetime_arg $hpc_arg
-    python3 pilot.py $debug -a $workdir -j $job_label -w $workflow -q $queue --pilot-user=$pilot_user --url=$url $lifetime_arg $hpc_arg
+    echo python3 pilot.py $proxy $debug -a $workdir -j $job_label -w $workflow -q $queue --pilot-user=$pilot_user --url=$url $lifetime_arg $hpc_arg
+    python3 pilot.py $proxy $debug -a $workdir -j $job_label -w $workflow -q $queue --pilot-user=$pilot_user --url=$url $lifetime_arg $hpc_arg
     ec=$?
     log_stdout "exitcode: $ec"
 
-    if [ ! -z ${APFMON+x} ] && [ ! -z ${APFFID+x} ] && [ ! -z ${APFCID+x} ]; then
-        apfmon_end $ec
-    fi
+    #if [ ! -z ${APFMON+x} ] && [ ! -z ${APFFID+x} ] && [ ! -z ${APFCID+x} ]; then
+    #    apfmon_end $ec
+    #fi
 
     log_stdout "--- cleanup ---"
     #log_es "cleanup"
