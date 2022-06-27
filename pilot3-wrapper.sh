@@ -4,7 +4,7 @@
 # author: paul.nilsson@cern.ch
 # ./pilot3-wrapper.sh -w generic -a /scratch -j ptest -q UTA_PAUL_TEST -v https://aipanda007.cern.ch -l 2000
 
-VERSION=20210126.001
+VERSION=20220627.001
 
 function log_stdout() {
     date --utc +"%Y-%m-%d %H:%M:%S %Z [wrapper:stdout] " | tr -d '\n'
@@ -181,8 +181,8 @@ function main() {
     #log_stdout "rucio whoami: \n$(rucio whoami)"
 
     log_stdout "--- retrieving pilot ---"
-    wget -q http://cern.ch/atlas-panda-pilot/pilot2-dev2.tar.gz
-    tar xfz pilot2-dev2.tar.gz --strip-components=1
+    wget -q http://cern.ch/atlas-panda-pilot/pilot3-dev2.tar.gz
+    tar xfz pilot3-dev2.tar.gz --strip-components=1
 
     log_stdout "--- installing signal handler ---"
     trap trap_handler SIGTERM SIGQUIT SIGSEGV SIGXCPU SIGUSR1 SIGBUS
